@@ -15,23 +15,15 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v4
 
-    - name: Install Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18
-
-    - name: Install SingleFile
-      run: npm install -g single-file-cli
-
     - name: Create Output Folder
       run: mkdir -p output
 
     - name: Download Website
       run: |
-        single-file "${{ github.event.inputs.website }}" output/download.html
+        wget -E -H -k -K -p "${{ github.event.inputs.website }}" -P output
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: downloaded-html
-        path: output/download.html
+        path: output
