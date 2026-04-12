@@ -15,15 +15,43 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v4
 
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Install Puppeteer
+      run: npm install puppeteer
+
     - name: Create Output Folder
       run: mkdir -p output
 
     - name: Download Website
       run: |
-        wget -E -H -k -K -p "${{ github.event.inputs.website }}" -P output
+        node <<EOF
+        const puppeteer = require('puppeteer');
+        const fs = require('fs');
+
+        (async () => {
+          const browser = await puppeteer.launch({
+            args: ['--no-sandbox']
+          });
+
+          const page = await browser.newPage();
+          await page.goto('${{ github.event.inputs.website }}', {
+            waitUntil: 'networkidle2',
+            timeout: 60000
+          });
+
+          const html = await page.content();
+          fs.writeFileSync('output/download.html', html);
+
+          await browser.close();
+        })();
+        EOF
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: downloaded-html
-        path: output
+        path: output/download.html
