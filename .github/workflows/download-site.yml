@@ -13,22 +13,25 @@ jobs:
 
     steps:
     - name: Checkout Repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Install Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: 18
 
     - name: Install SingleFile
       run: npm install -g single-file-cli
 
+    - name: Create Output Folder
+      run: mkdir -p output
+
     - name: Download Website
       run: |
         single-file "${{ github.event.inputs.website }}" output/download.html
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: downloaded-html
         path: output/download.html
